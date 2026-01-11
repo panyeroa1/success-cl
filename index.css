@@ -1,0 +1,421 @@
+
+:root {
+  --gold: #D4AF37;
+  --gold-glow: rgba(212, 175, 55, 0.4);
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --bg: #070707;
+  --text: #ffffff;
+  --text-dim: #a0a0a0;
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  position: fixed; /* Prevent rubber-banding on iOS */
+}
+
+/* Background Elements */
+.app-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+}
+
+.app-bg-blob {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: var(--gold-glow);
+  filter: blur(80px);
+  opacity: 0.3;
+  border-radius: 50%;
+}
+
+/* Typography */
+h1 {
+  font-weight: 800;
+  font-size: 1.8rem;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+h1 span {
+  color: var(--gold);
+}
+
+/* Layout Utilities */
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header & Sidebar */
+header {
+  height: 60px;
+  padding: var(--safe-top) 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+header h1 {
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 85%;
+  max-width: 320px;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 2000;
+  transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 1px solid var(--glass-border);
+  padding: var(--safe-top) 20px;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+/* Portal & Bento Grid */
+.portal-container {
+  padding: calc(var(--safe-top) + 20px) 20px var(--safe-bottom);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.container-bento {
+  width: 100%;
+  max-width: 480px;
+}
+
+.bento {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+  width: 100%;
+}
+
+.tile {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 24px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.tile:active {
+  transform: scale(0.98);
+  background: rgba(255,255,255,0.08);
+}
+
+.tile.large {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  background: linear-gradient(145deg, #151515, #000);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.tile-icon { font-size: 2rem; }
+.tile h3 { margin: 0; font-size: 1.1rem; }
+.tile p { margin: 4px 0 0; font-size: 0.85rem; color: var(--text-dim); }
+
+/* Config Screen */
+.config-screen {
+  height: 100%;
+  width: 100%;
+  padding: var(--safe-top) 20px var(--safe-bottom);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.config-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.video-glass-frame {
+  aspect-ratio: 4/3;
+  background: #000;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  position: relative;
+}
+
+.video-glass-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--glass);
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.config-toggle-tile {
+  background: rgba(255,255,255,0.03);
+  padding: 16px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.config-toggle-tile.active {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+/* Control Tray - Mobile Bottom Bar */
+.control-tray {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px calc(var(--safe-bottom) + 12px);
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 500;
+}
+
+.actions-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.action-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.action-button.connect-toggle {
+  width: 60px;
+  height: 60px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+/* Streaming Console */
+.orb-platform-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 120px; /* Space for tray */
+}
+
+/* Status Badge */
+.platform-status-badge {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  transition: 0.3s;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.status-text {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.orb-centerpiece {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-orb {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #444, #000);
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.orb-core {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  right: 15%;
+  bottom: 15%;
+  background: var(--gold);
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.6;
+}
+
+/* Orb Status Animations */
+.orb-listening {
+  animation: orbPulse 2s infinite ease-in-out;
+}
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.orb-thinking {
+  filter: brightness(1.2);
+}
+
+.orb-loader-ring {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--gold);
+  border-radius: 50%;
+  animation: orbRotate 1.5s linear infinite;
+}
+
+@keyframes orbRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.transcription-overlay {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  text-align: center;
+  min-height: 80px;
+}
+
+.minimal-turn {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  opacity: 0.9;
+  animation: turnEnter 0.3s ease-out;
+}
+
+@keyframes turnEnter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.minimal-turn.user { color: var(--gold); }
+.minimal-turn.agent { color: #fff; font-weight: 600; }
+
+/* Desktop Overrides */
+@media (min-width: 768px) {
+  .bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .tile.large {
+    grid-column: span 2;
+  }
+  .config-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .video-glass-frame {
+    flex: 1;
+  }
+  .controls-panel {
+    width: 360px;
+  }
+  .main-orb {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+.icon { font-family: 'Material Symbols Outlined'; font-style: normal; }

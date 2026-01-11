@@ -1,0 +1,8 @@
+{
+  "name": "Success Class | Orbit Platform",
+  "description": "High-performance AI classroom environment powered by Success Class Orbit Platform.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
