@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -29,9 +30,9 @@ export default function ErrorScreen() {
   }, [client]);
 
   const quotaErrorMessage =
-    'Gemini Live API in AI Studio has a limited free quota each day. Come back tomorrow to continue.';
+    'Orbit Platform core has reached its daily processing limit. Please return later to continue the session.';
 
-  let errorMessage = 'Something went wrong. Please try again.';
+  let errorMessage = 'Orbit Platform encountered a synchronization error. Please try again.';
   let rawMessage: string | null = error?.message || null;
   let tryAgainOption = true;
   if (error?.message?.includes('RESOURCE_EXHAUSTED')) {
@@ -51,7 +52,7 @@ export default function ErrorScreen() {
           fontSize: 48,
         }}
       >
-        💔
+        🛰️
       </div>
       <div
         className="error-message-container"
@@ -59,6 +60,7 @@ export default function ErrorScreen() {
           fontSize: 22,
           lineHeight: 1.2,
           opacity: 0.5,
+          marginTop: '20px'
         }}
       >
         {errorMessage}
@@ -70,16 +72,17 @@ export default function ErrorScreen() {
             setError(null);
           }}
         >
-          Close
+          Reset Connection
         </button>
       ) : null}
       {rawMessage ? (
         <div
           className="error-raw-message-container"
           style={{
-            fontSize: 15,
+            fontSize: 13,
             lineHeight: 1.2,
             opacity: 0.4,
+            marginTop: '15px'
           }}
         >
           {rawMessage}

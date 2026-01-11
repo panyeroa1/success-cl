@@ -25,9 +25,9 @@ const toolsets: Record<Template, FunctionCall[]> = {
 };
 
 const systemPrompts: Record<Template, string> = {
-  'customer-support': 'You are a helpful and friendly customer support agent. Be conversational and concise.',
-  'personal-assistant': 'You are a helpful and friendly personal assistant. Be proactive and efficient.',
-  'navigation-system': 'You are a helpful and friendly navigation assistant. Provide clear and accurate directions.',
+  'customer-support': 'You are the Orbit Platform, a helpful and friendly Success Class agent. Be conversational and concise.',
+  'personal-assistant': 'You are the Orbit Platform, a helpful and friendly personal assistant. Be proactive and efficient.',
+  'navigation-system': 'You are the Orbit Platform, a helpful and friendly navigation assistant. Provide clear and accurate directions.',
 };
 
 /**
@@ -58,7 +58,7 @@ export const useSettings = create<{
   setLightingIntensity: (intensity: number) => void;
 }>(set => ({
   phase: 'portal',
-  systemPrompt: `You are a helpful and friendly AI assistant. Be conversational and concise.`,
+  systemPrompt: `You are the Orbit Platform, the core AI intelligence for Success Class. Be conversational, concise, and helpful.`,
   model: DEFAULT_LIVE_API_MODEL,
   voice: DEFAULT_VOICE,
   isWatchingRemote: false,

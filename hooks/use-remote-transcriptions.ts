@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useSettings, useLogStore } from '../lib/state';
@@ -30,15 +31,15 @@ export function useRemoteTranscriptions() {
             // Add to log store as a system notification
             useLogStore.getState().addTurn({
               role: 'system',
-              text: `[Remote Transcription]: ${text}`,
+              text: `[Orbit Sync]: ${text}`,
               isFinal: true,
             });
 
-            // Send to Gemini as a user prompt
+            // Send to Orbit Platform core as a user prompt
             try {
               client.send([{ text }]);
             } catch (err) {
-              console.error('Failed to send remote transcription to Gemini:', err);
+              console.error('Failed to send remote transcription to Orbit Core:', err);
             }
           }
         }

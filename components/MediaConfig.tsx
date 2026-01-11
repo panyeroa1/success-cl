@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useSettings } from '../lib/state';
 
@@ -28,7 +29,7 @@ export default function MediaConfig() {
         setDevices(videoDevices);
         if (videoDevices.length > 0) setSelectedVideo(videoDevices[0].deviceId);
       } catch (err) {
-        console.error("Media setup failed", err);
+        console.error("Media sync failed", err);
       }
     }
     setupMedia();
@@ -49,8 +50,12 @@ export default function MediaConfig() {
   return (
     <div className="config-screen fade-in">
       <div className="config-header">
-        <h1 className="portal-title-mini">HARDWARE <span>SYNC</span></h1>
-        <button className="back-btn-circle" onClick={() => setPhase('portal')}>
+        <h1>HARDWARE <span>SYNC</span></h1>
+        <button 
+          className="tile" 
+          onClick={() => setPhase('portal')}
+          style={{ padding: '12px', borderRadius: '50%', flexDirection: 'row' }}
+        >
           <span className="icon">arrow_back</span>
         </button>
       </div>
@@ -68,36 +73,41 @@ export default function MediaConfig() {
             />
             <div className="video-status-overlay">
               <span className="dot online"></span>
-              <span className="label">ENCRYPTED FEED</span>
+              <span className="label" style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1px' }}>
+                CALIBRATING FEED...
+              </span>
             </div>
           </div>
+          <p style={{ color: 'var(--text-dim)', fontSize: '0.75rem', marginTop: '16px', textAlign: 'center' }}>
+            WHITELISTED TO EBURON.AI | ORBIT CORE SYNC ACTIVE
+          </p>
         </div>
 
         <div className="controls-panel">
           <div className="control-section">
-            <h3>Camera Device</h3>
+            <h3>Optic Input</h3>
             <select className="config-select" value={selectedVideo} onChange={(e) => setSelectedVideo(e.target.value)}>
               {devices.map(d => (
-                <option key={d.deviceId} value={d.deviceId}>{d.label || 'Standard Camera'}</option>
+                <option key={d.deviceId} value={d.deviceId}>{d.label || 'Standard Optic'}</option>
               ))}
             </select>
           </div>
 
-          <div className="control-grid">
+          <div className="bento" style={{ marginTop: '0' }}>
             <div className={`config-toggle-tile ${mirrorVideo ? 'active' : ''}`} onClick={() => setMirrorVideo(!mirrorVideo)}>
               <span className="icon">flip</span>
-              <span className="label">Mirror</span>
+              <span className="label" style={{ fontSize: '0.7rem', fontWeight: 700 }}>MIRROR</span>
             </div>
             <div className={`config-toggle-tile ${studioAudio ? 'active' : ''}`} onClick={() => setStudioAudio(!studioAudio)}>
-              <span className="icon">mic_external_on</span>
-              <span className="label">Studio Audio</span>
+              <span className="icon">graphic_eq</span>
+              <span className="label" style={{ fontSize: '0.7rem', fontWeight: 700 }}>STUDIO</span>
             </div>
           </div>
 
           <div className="control-section">
-            <div className="label-row">
-              <h3>Lighting Studio</h3>
-              <span>{lightingIntensity}%</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <h3>Atmospheric Lighting</h3>
+              <span style={{ color: 'var(--gold)', fontWeight: 800, fontSize: '0.8rem' }}>{lightingIntensity}%</span>
             </div>
             <input 
               type="range" 
@@ -106,11 +116,12 @@ export default function MediaConfig() {
               max="100" 
               value={lightingIntensity} 
               onChange={(e) => setLightingIntensity(parseInt(e.target.value))}
+              style={{ width: '100%', accentColor: 'var(--gold)' }}
             />
           </div>
 
           <button className="btn-join-platform" onClick={handleStart}>
-            {meetingRole === 'transcriber' ? 'START SESSION' : 'JOIN SESSION'}
+            {meetingRole === 'transcriber' ? 'INITIALIZE ORBIT' : 'ENTER SESSION'}
           </button>
         </div>
       </div>

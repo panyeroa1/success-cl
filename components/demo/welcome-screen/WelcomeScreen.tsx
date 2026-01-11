@@ -12,8 +12,8 @@ import { Template } from '../../../lib/types';
 
 const welcomeContent: Record<Template, { title: string; description: string; prompts: string[] }> = {
   'customer-support': {
-    title: 'Customer Support',
-    description: 'Handle customer inquiries and see how function calls can automate tasks.',
+    title: 'Orbit Support',
+    description: 'Experience how Orbit Platform handles inquiries and triggers specialized functions in real-time.',
     prompts: [
       "I'd like to return an item.",
       "What's the status of my order?",
@@ -21,8 +21,8 @@ const welcomeContent: Record<Template, { title: string; description: string; pro
     ],
   },
   'personal-assistant': {
-    title: 'Personal Assistant',
-    description: 'Manage your schedule, send emails, and set reminders.',
+    title: 'Orbit Assistant',
+    description: 'The Orbit Platform core manages your masterclass schedule and master-level tasks.',
     prompts: [
       'Create a calendar event for a meeting tomorrow at 10am.',
       'Send an email to jane@example.com.',
@@ -30,8 +30,8 @@ const welcomeContent: Record<Template, { title: string; description: string; pro
     ],
   },
   'navigation-system': {
-    title: 'Navigation System',
-    description: 'Find routes, nearby places, and get traffic information.',
+    title: 'Orbit Navigation',
+    description: 'Navigate complex environments using the Orbit Platform geographic mapping engine.',
     prompts: [
       'Find a route to the nearest coffee shop.',
       'Are there any parks nearby?',
@@ -50,9 +50,9 @@ const WelcomeScreen: React.FC = () => {
           <span className="welcome-icon">mic</span>
           <div className="title-selector">
             <select value={template} onChange={(e) => setTemplate(e.target.value as Template)} aria-label="Select a template">
-              <option value="customer-support">Customer Support</option>
-              <option value="personal-assistant">Personal Assistant</option>
-              <option value="navigation-system">Navigation System</option>
+              <option value="customer-support">Orbit Support</option>
+              <option value="personal-assistant">Orbit Assistant</option>
+              <option value="navigation-system">Orbit Navigation</option>
             </select>
             <span className="icon">arrow_drop_down</span>
           </div>

@@ -14,7 +14,7 @@ import {
 } from '../../../lib/state';
 import { supabase } from '../../../lib/supabase';
 
-type AIStatus = 'IDLE' | 'LISTENING' | 'THINKING' | 'SPEAKING';
+type AIStatus = 'READY' | 'LISTENING' | 'CALCULATING' | 'EMITTING';
 
 export default function StreamingConsole() {
   const { client, setConfig, volume, connected } = useLiveAPIContext();
@@ -23,59 +23,101 @@ export default function StreamingConsole() {
   const turns = useLogStore(state => state.turns);
   const [showPopUp, setShowPopUp] = useState(true);
 
-  const lastPersistedTimeRef = useRef<number>(0);
-  const persistingRef = useRef<Set<number>>(new Set());
+  // Persistence tracking for real-time streaming
+  const activeRowIdRef = useRef<string | null>(null);
+  const activeTurnKeyRef = useRef<number>(0);
+  const lastSyncedTextRef = useRef<string>("");
+  const isSyncingRef = useRef<boolean>(false);
 
-  // Derive AI Status from conversation state
+  // Derive Orbit Core Status from conversation state
   const aiStatus = useMemo((): AIStatus => {
-    if (!connected) return 'IDLE';
+    if (!connected) return 'READY';
     
     const lastTurn = turns[turns.length - 1];
-    if (!lastTurn) return 'IDLE';
+    if (!lastTurn) return 'READY';
 
-    // If AI is currently emitting audio/content
-    if (lastTurn.role === 'agent' && !lastTurn.isFinal) return 'SPEAKING';
-    if (volume > 0.05) return 'SPEAKING';
+    // If Core is currently emitting audio/content
+    if (lastTurn.role === 'agent' && !lastTurn.isFinal) return 'EMITTING';
+    if (volume > 0.05) return 'EMITTING';
 
     // If user is currently speaking (transcription in progress)
     if (lastTurn.role === 'user' && !lastTurn.isFinal) return 'LISTENING';
 
-    // If user just finished speaking but AI hasn't started yet
-    if (lastTurn.role === 'user' && lastTurn.isFinal) return 'THINKING';
+    // If user just finished speaking but Core hasn't started yet
+    if (lastTurn.role === 'user' && lastTurn.isFinal) return 'CALCULATING';
 
-    return 'IDLE';
+    return 'READY';
   }, [turns, connected, volume]);
 
+  /**
+   * REAL-TIME PERSISTENCE LOGIC
+   * Streams partial and final transcription text to Supabase.
+   */
   useEffect(() => {
-    if (meetingRole !== 'transcriber' || !remoteMeetingId) return;
+    if (meetingRole !== 'transcriber' || !remoteMeetingId || turns.length === 0) return;
 
-    const pendingTurns = turns.filter(turn => 
-      turn.isFinal && 
-      turn.role !== 'system' && 
-      turn.text.trim().length > 0 &&
-      turn.timestamp.getTime() > lastPersistedTimeRef.current &&
-      !persistingRef.current.has(turn.timestamp.getTime())
-    );
+    const lastTurn = turns[turns.length - 1];
+    if (lastTurn.role === 'system' || !lastTurn.text.trim()) return;
 
-    if (pendingTurns.length > 0) {
-      pendingTurns.forEach(turn => {
-        const turnTime = turn.timestamp.getTime();
-        persistingRef.current.add(turnTime);
+    const turnKey = lastTurn.timestamp.getTime();
 
-        supabase.from('transcriptions').insert({
-          meeting_id: remoteMeetingId,
-          transcribe_text_segment: turn.text.trim(),
-          full_transcription: turn.text.trim(),
-          speaker: turn.role,
-          created_at: turn.timestamp.toISOString()
-        }).then(({ error }) => {
-          persistingRef.current.delete(turnTime);
-          if (!error && turnTime > lastPersistedTimeRef.current) {
-            lastPersistedTimeRef.current = turnTime;
-          }
-        });
-      });
+    // Check if we need to sync
+    if (turnKey === activeTurnKeyRef.current && lastTurn.text === lastSyncedTextRef.current) {
+      return;
     }
+
+    // New Turn detected
+    if (turnKey !== activeTurnKeyRef.current) {
+      activeRowIdRef.current = null;
+      activeTurnKeyRef.current = turnKey;
+      lastSyncedTextRef.current = "";
+    }
+
+    // Prevent overlapping syncs for the same segment
+    if (isSyncingRef.current) return;
+
+    const syncTranscription = async () => {
+      isSyncingRef.current = true;
+      const textToSync = lastTurn.text;
+
+      try {
+        if (activeRowIdRef.current) {
+          // Update existing partial record
+          await supabase
+            .from('transcriptions')
+            .update({
+              transcribe_text_segment: textToSync,
+              full_transcription: textToSync,
+            })
+            .eq('id', activeRowIdRef.current);
+          
+          lastSyncedTextRef.current = textToSync;
+        } else {
+          // Create new record and capture the ID for future updates in this turn
+          const { data, error } = await supabase
+            .from('transcriptions')
+            .insert({
+              meeting_id: remoteMeetingId,
+              transcribe_text_segment: textToSync,
+              full_transcription: textToSync,
+              speaker: lastTurn.role,
+              created_at: lastTurn.timestamp.toISOString()
+            })
+            .select();
+
+          if (!error && data && data[0]) {
+            activeRowIdRef.current = data[0].id;
+            lastSyncedTextRef.current = textToSync;
+          }
+        }
+      } catch (err) {
+        console.error('[Orbit Stream Sync Error]:', err);
+      } finally {
+        isSyncingRef.current = false;
+      }
+    };
+
+    syncTranscription();
   }, [turns, meetingRole, remoteMeetingId]);
 
   useEffect(() => {
@@ -136,7 +178,8 @@ export default function StreamingConsole() {
     const handleContent = (serverContent: LiveServerContent) => {
       const text = serverContent.modelTurn?.parts?.map((p: any) => p.text).filter(Boolean).join(' ') ?? '';
       if (!text) return;
-      const last = useLogStore.getState().turns.at(-1);
+      const currentTurns = useLogStore.getState().turns;
+      const last = currentTurns[currentTurns.length - 1];
       if (last?.role === 'agent' && !last.isFinal) {
         updateLastTurn({ text: last.text + text });
       } else {
@@ -145,7 +188,8 @@ export default function StreamingConsole() {
     };
 
     const handleTurnComplete = () => {
-      const last = useLogStore.getState().turns.at(-1);
+      const currentTurns = useLogStore.getState().turns;
+      const last = currentTurns[currentTurns.length - 1];
       if (last && !last.isFinal) {
         updateLastTurn({ isFinal: true });
       }
@@ -185,7 +229,7 @@ export default function StreamingConsole() {
           }}
         >
           <div className="orb-core"></div>
-          {aiStatus === 'THINKING' && <div className="orb-loader-ring"></div>}
+          {(aiStatus === 'CALCULATING' || aiStatus === 'EMITTING') && <div className="orb-loader-ring"></div>}
         </div>
       </div>
 
@@ -199,7 +243,7 @@ export default function StreamingConsole() {
 
       {!connected && (
         <div style={{ color: 'var(--gold)', fontSize: '0.7rem', letterSpacing: '2px', fontWeight: 800, marginTop: '20px' }}>
-          ORBIT CORE READY
+          ORBIT PLATFORM CORE READY
         </div>
       )}
     </div>

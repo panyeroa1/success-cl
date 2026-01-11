@@ -10,26 +10,26 @@ interface Step {
 
 const steps: Step[] = [
   {
-    title: "WELCOME TO ORBIT PLATFORM",
-    description: "You have entered a high-performance conversational environment designed for Success Class. Powered by the Orbit Platform AI.",
+    title: "SUCCESS CLASS | ORBIT",
+    description: "Welcome to the high-performance AI conversational environment. Precision and intelligence synchronized.",
     icon: "auto_awesome",
     accent: "var(--gold)"
   },
   {
-    title: "THE SUCCESS CLASS PORTAL",
-    description: "Launch instant sessions, join existing orbits, or schedule masterclasses through our intuitive grid.",
+    title: "THE GRID INTERFACE",
+    description: "Launch orbits or connect to existing sessions through our reactive bento grid. Whitelisted to EBURON.AI.",
     icon: "grid_view",
     accent: "#43e97b"
   },
   {
-    title: "HARDWARE SYNC",
-    description: "Calibrate your studio lighting and audio hardware before taking the floor. Precision is our baseline.",
+    title: "HARDWARE CALIBRATION",
+    description: "Adjust your studio lighting and optic feed to professional standards before entering the Core.",
     icon: "settings_input_component",
     accent: "#00d2ff"
   },
   {
     title: "THE INTELLIGENT CORE",
-    description: "Interact with the Orbit Platform, a reactive AI model that responds to your voice in real-time.",
+    description: "Speak naturally. The Orbit Core calculates and responds in real-time, driving your success session forward.",
     icon: "radio_button_checked",
     accent: "var(--gold)"
   }
@@ -47,19 +47,21 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
     }
   };
 
-  const handleSkip = () => {
-    localStorage.setItem('orbit_onboarding_complete', 'true');
-    onComplete();
-  };
-
   const step = steps[currentStep];
 
   return (
     <div className="onboarding-overlay fade-in">
       <div className="onboarding-card">
-        <div className="onboarding-header">
-          <span className="step-count">STEP 0{currentStep + 1} / 04</span>
-          <button className="skip-btn" onClick={handleSkip}>SKIP</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '2px', color: 'var(--text-dim)' }}>
+            PROTOCOL 0{currentStep + 1} / 04
+          </span>
+          <button 
+            onClick={onComplete}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', fontSize: '0.7rem' }}
+          >
+            SKIP
+          </button>
         </div>
 
         <div className="onboarding-body" key={currentStep}>
@@ -67,7 +69,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             <span className="icon-large">{step.icon}</span>
             <div className="icon-glow" style={{ background: step.accent }}></div>
           </div>
-          <h2>{step.title}</h2>
+          <h2 style={{ letterSpacing: '2px' }}>{step.title}</h2>
           <p>{step.description}</p>
         </div>
 
@@ -81,7 +83,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
               />
             ))}
           </div>
-          <button className="next-btn" onClick={handleNext} style={{ backgroundColor: step.accent }}>
+          <button 
+            className="next-btn" 
+            onClick={handleNext} 
+            style={{ backgroundColor: step.accent, boxShadow: `0 10px 30px ${step.accent}44` }}
+          >
             {currentStep === steps.length - 1 ? 'GET STARTED' : 'CONTINUE'}
           </button>
         </div>

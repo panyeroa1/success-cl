@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -103,7 +104,7 @@ export function useLiveApi({
 
       for (const fc of toolCall.functionCalls) {
         // Log the function call trigger
-        const triggerMessage = `Triggering function call: **${
+        const triggerMessage = `[Orbit Core Trigger]: Executing **${
           fc.name
         }**\n\`\`\`json\n${JSON.stringify(fc.args, null, 2)}\n\`\`\``;
         useLogStore.getState().addTurn({
@@ -122,11 +123,7 @@ export function useLiveApi({
 
       // Log the function call response
       if (functionResponses.length > 0) {
-        const responseMessage = `Function call response:\n\`\`\`json\n${JSON.stringify(
-          functionResponses,
-          null,
-          2,
-        )}\n\`\`\``;
+        const responseMessage = `[Orbit Core Response]: Action completed successfully.`;
         useLogStore.getState().addTurn({
           role: 'system',
           text: responseMessage,
@@ -151,7 +148,7 @@ export function useLiveApi({
 
   const connect = useCallback(async () => {
     if (!config) {
-      throw new Error('config has not been set');
+      throw new Error('Orbit Platform config has not been set');
     }
     client.disconnect();
     await client.connect(config);
